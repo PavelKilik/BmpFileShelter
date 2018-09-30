@@ -185,6 +185,11 @@
   <ItemGroup>
     <ClInclude Include="BmpFileShelter.h" />
     <ClInclude Include="BmpFileShelterDlg.h" />
+    <ClInclude Include="CBmpFileShelterHelper.h" />
+    <ClInclude Include="CMyByteLCG.h" />
+    <ClInclude Include="CMyFileEncryptor.h" />
+    <ClInclude Include="CMyImage.h" />
+    <ClInclude Include="CMyLCG.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -192,6 +197,11 @@
   <ItemGroup>
     <ClCompile Include="BmpFileShelter.cpp" />
     <ClCompile Include="BmpFileShelterDlg.cpp" />
+    <ClCompile Include="CBmpFileShelterHelper.cpp" />
+    <ClCompile Include="CMyByteLCG.cpp" />
+    <ClCompile Include="CMyFileEncryptor.cpp" />
+    <ClCompile Include="CMyImage.cpp" />
+    <ClCompile Include="CMyLCG.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
