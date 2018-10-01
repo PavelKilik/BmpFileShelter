@@ -16,7 +16,7 @@ bool CMyFileEncryptor::InitializeEncryptor(const CString & key)
 {
 	bool retValue = false;
 
-	const int hashSize = 2 * sizeof(byte) + 4 * sizeof(ULONG32);
+	const int hashSize = 2 * sizeof(byte) + 6 * sizeof(ULONG32);
 	byte bHash[hashSize];
 
 	int bKeySize;
@@ -27,10 +27,14 @@ bool CMyFileEncryptor::InitializeEncryptor(const CString & key)
 		if (HashData(pBKey, bKeySize, bHash, hashSize) == S_OK)
 		{
 			int pos = 0;
-			aSeed1 = bHash[pos];
+			aSeedAdd1 = bHash[pos];
 			pos += sizeof(byte);
-			aSeed2 = bHash[pos];
+			aSeedAdd2 = bHash[pos];
 			pos += sizeof(byte);
+			aSeedLcg1 = CBmpFileShelterHelper::GetULONG32FromByteArray(bHash, pos);
+			pos += sizeof(ULONG32);
+			aSeedLcg2 = CBmpFileShelterHelper::GetULONG32FromByteArray(bHash, pos);
+			pos += sizeof(ULONG32);
 			ULONG32 a1 = CBmpFileShelterHelper::GetULONG32FromByteArray(bHash, pos);
 			pos += sizeof(ULONG32);
 			ULONG32 c1 = CBmpFileShelterHelper::GetULONG32FromByteArray(bHash, pos);
@@ -142,28 +146,55 @@ byte * CMyFileEncryptor::Encrypt(byte * pB, int nCount, int & realCount)
 	CBmpFileShelterHelper::ULONG32ToByteArray(bWithCount, 0, nCount);
 
 	byte * pbEncrypted = new byte[encryptedCount];
-	aLcg1.Start(aSeed1);
-	aLcg2.Start(aSeed2);
+	aLcg1.Start(aSeedLcg1);
+	aLcg2.Start(aSeedLcg2);
 	realCount = 0;
+
+	byte bx1 = aSeedAdd1;
+	byte bx2 = aSeedAdd2;
 
 	for (int i = 0; i < ulSize; i++)
 	{
 		pbEncrypted[realCount] = ByteAdd(bWithCount[i], aLcg1.Next());
+
+		pbEncrypted[realCount] = ByteAdd(pbEncrypted[realCount], bx1);
+		bx1 = pbEncrypted[realCount];
+
 		pbEncrypted[realCount] ^= aLcg2.Next();
+
+		pbEncrypted[realCount] = ByteAdd(pbEncrypted[realCount], bx2);
+		bx2 = pbEncrypted[realCount];
+
 		realCount++;
 	}
 
 	for (int i = 0; i < nCount; i++)
 	{
 		pbEncrypted[realCount] = ByteAdd(pB[i], aLcg1.Next());
+
+		pbEncrypted[realCount] = ByteAdd(pbEncrypted[realCount], bx1);
+		bx1 = pbEncrypted[realCount];
+
 		pbEncrypted[realCount] ^= aLcg2.Next();
+
+		pbEncrypted[realCount] = ByteAdd(pbEncrypted[realCount], bx2);
+		bx2 = pbEncrypted[realCount];
+
 		realCount++;
 	}
 
 	for (int i = 0; i < ulSize; i++)
 	{
 		pbEncrypted[realCount] = ByteAdd(bWithCount[i], aLcg1.Next());
+
+		pbEncrypted[realCount] = ByteAdd(pbEncrypted[realCount], bx1);
+		bx1 = pbEncrypted[realCount];
+
 		pbEncrypted[realCount] ^= aLcg2.Next();
+
+		pbEncrypted[realCount] = ByteAdd(pbEncrypted[realCount], bx2);
+		bx2 = pbEncrypted[realCount];
+
 		realCount++;
 	}
 
@@ -174,14 +205,29 @@ byte * CMyFileEncryptor::Decrypt(byte * pB, int nMaxCount, int & realCount)
 {
 	int ulSize = sizeof(ULONG32);
 
-	aLcg1.Start(aSeed1);
-	aLcg2.Start(aSeed2);
+	aLcg1.Start(aSeedLcg1);
+	aLcg2.Start(aSeedLcg2);
+
+	byte bx1 = aSeedAdd1;
+	byte by1;
+	byte bx2 = aSeedAdd2;
+	byte by2;
+
 
 	byte * pbDecrypted = new byte[nMaxCount];
 
 	for (int i = 0; i < nMaxCount; i++)
 	{
+		by2 = pB[i];
+		pB[i] = ByteSub(pB[i], bx2);
+		bx2 = by2;
+
 		pbDecrypted[i] = pB[i] ^ aLcg2.Next();
+
+		by1 = pbDecrypted[i];
+		pbDecrypted[i] = ByteSub(pbDecrypted[i], bx1);
+		bx1 = by1;
+
 		pbDecrypted[i] = ByteSub(pbDecrypted[i], aLcg1.Next());
 	}
 

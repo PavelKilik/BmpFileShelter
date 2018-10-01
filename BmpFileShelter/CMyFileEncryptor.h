@@ -5,8 +5,10 @@
 class CMyFileEncryptor
 {
 private:
-	byte aSeed1;
-	byte aSeed2;
+	ULONG32 aSeedLcg1;
+	ULONG32 aSeedLcg2;
+	byte aSeedAdd1;
+	byte aSeedAdd2;
 
 	CMyByteLCG aLcg1;
 	CMyByteLCG aLcg2;
