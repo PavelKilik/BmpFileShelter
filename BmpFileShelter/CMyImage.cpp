@@ -25,9 +25,11 @@ bool CMyImage::HideByteArrayIntoBitmap(const byte * pB, int arrSize)
 		return false;
 	}
 
+	int rgbRotation;
 	int bPos = 0;
 	for (int i = 0; i < bmpWidth; i++)
 	{
+		rgbRotation = i % 3;
 		for (int j = 0; j < bmpHeight; j++)
 		{
 			if (bPos == arrSize)
@@ -35,17 +37,33 @@ bool CMyImage::HideByteArrayIntoBitmap(const byte * pB, int arrSize)
 				srand((unsigned)time(NULL));
 			}
 			byte byteAdd = bPos >= arrSize ? (byte)rand() : pB[bPos];
-			byte rCorrection = byteAdd & 0x7;
-			byte gCorrection = (byteAdd >> 3) & 0x7;
-			byte bCorrection = (byteAdd >> 6) & 0x3;
 			byte rOrig;
 			byte gOrig;
 			byte bOrig;
+			byte rNew;
+			byte gNew;
+			byte bNew;
 			this->GetRGB(i, j, rOrig, gOrig, bOrig);
-			byte rNew = (rOrig & 0xF8) | rCorrection;
-			byte gNew = (gOrig & 0xF8) | gCorrection;
-			byte bNew = (bOrig & 0xFC) | bCorrection;
+			switch (rgbRotation % 3)
+			{
+			case 0:
+				rNew = (rOrig & 0xF8) | (byteAdd & 0x7);
+				gNew = (gOrig & 0xF8) | ((byteAdd >> 3) & 0x7);
+				bNew = (bOrig & 0xFC) | ((byteAdd >> 6) & 0x3);
+				break;
+			case 1:
+				rNew = (rOrig & 0xF8) | ((byteAdd >> 3) & 0x7);
+				gNew = (gOrig & 0xFC) | ((byteAdd >> 6) & 0x3);
+				bNew = (bOrig & 0xF8) | (byteAdd & 0x7);
+				break;
+			case 2:
+				rNew = (rOrig & 0xFC) | ((byteAdd >> 6) & 0x3);
+				gNew = (gOrig & 0xF8) | (byteAdd & 0x7);
+				bNew = (bOrig & 0xF8) | ((byteAdd >> 3) & 0x7);
+				break;
+			}
 			this->SetRGB(i, j, rNew, gNew, bNew);
+			rgbRotation++;
 			bPos++;
 		}
 	}
@@ -55,6 +73,7 @@ bool CMyImage::HideByteArrayIntoBitmap(const byte * pB, int arrSize)
 
 byte * CMyImage::ExtractByteArrayFromBitmap(int & arrSize)
 {
+	int rgbRotation;
 	int bPos = 0;
 	int bmpHeight = this->GetHeight();
 	int bmpWidth = this->GetWidth();
@@ -62,16 +81,39 @@ byte * CMyImage::ExtractByteArrayFromBitmap(int & arrSize)
 	byte *pB = new byte[arrSize];
 	for (int i = 0; i < bmpWidth; i++)
 	{
+		rgbRotation = i % 3;
 		for (int j = 0; j < bmpHeight; j++)
 		{
 			byte r;
 			byte g;
 			byte b;
+			byte rPart;
+			byte gPart;
+			byte bPart;
 			this->GetRGB(i, j, r, g, b);
-			byte rPart = r & 0x07;
-			byte gPart = g & 0x07;
-			byte bPart = b & 0x03;
-			pB[bPos++] = (bPart << 6) + (gPart << 3) + rPart;
+			switch (rgbRotation % 3)
+			{
+			case 0:
+				rPart = r & 0x07;
+				gPart = g & 0x07;
+				bPart = b & 0x03;
+				pB[bPos] = (bPart << 6) + (gPart << 3) + rPart;
+				break;
+			case 1:
+				rPart = r & 0x07;
+				gPart = g & 0x03;
+				bPart = b & 0x07;
+				pB[bPos] = (gPart << 6) + (rPart << 3) + bPart;
+				break;
+			case 2:
+				rPart = r & 0x03;
+				gPart = g & 0x07;
+				bPart = b & 0x07;
+				pB[bPos] = (rPart << 6) + (bPart << 3) + gPart;
+				break;
+			}
+			rgbRotation++;
+			bPos++;
 		}
 	}
 
