@@ -103,8 +103,10 @@ bool CMyFileEncryptor::Decrypt(LPCTSTR filePath, LPCTSTR key, byte * pB, int arr
 	if (!InitializeEncryptor(key))
 	{
 		errorString.Format(IDS_STRING_ERR_ERROR_INIT_ENCRYPTOR);
-		return nullptr;
+		return false;
 	}
+
+	bool retValue = false;
 
 	int realCount;
 	byte * pbDecrypted = Decrypt(pB, arrSize, realCount);
@@ -120,15 +122,15 @@ bool CMyFileEncryptor::Decrypt(LPCTSTR filePath, LPCTSTR key, byte * pB, int arr
 				ex.GetErrorMessage(errorMesage, 2048);
 				errorString.Format(IDS_STRING_ERR_CREATE_RESULT_FILE, errorMesage);
 				delete pbDecrypted;
-				return nullptr;
 			}
 			fil.Write(pbDecrypted, realCount);
 			fil.Close();
+			retValue = true;
 		}
 		delete pbDecrypted;
 	}
 
-	return false;
+	return retValue;
 }
 
 byte * CMyFileEncryptor::Encrypt(byte * pB, int nCount, int & realCount)

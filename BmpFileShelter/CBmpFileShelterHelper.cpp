@@ -17,7 +17,7 @@ void CBmpFileShelterHelper::ErrorMessage(int strMessageID)
 	CString errMsg;
 	errMsg.LoadString(strMessageID);
 
-	MessageBox(nullptr, errMsg, (LPCTSTR)"Error", MB_OK | MB_ICONERROR);
+	MessageBox(nullptr, errMsg, L"Error", MB_OK | MB_ICONERROR);
 }
 
 byte * CBmpFileShelterHelper::CStringToByteArray(const CString & str, int & arrSize)
@@ -76,12 +76,12 @@ bool CBmpFileShelterHelper::CheckImageExtension(LPCTSTR filePath, bool onlyBmp)
 	CString strExt(ext);
 	if (onlyBmp)
 	{
-		return strExt.CompareNoCase((LPCTSTR)L"BMP") == 0;
+		return strExt.CompareNoCase(L".BMP") == 0;
 	}
 	else
 	{
-		return strExt.CompareNoCase((LPCTSTR)L"JPG") == 0 ||
-			strExt.CompareNoCase((LPCTSTR)L"PNG") == 0 ||
-			strExt.CompareNoCase((LPCTSTR)L"BMP") == 0;
+		return strExt.CompareNoCase(L".JPG") == 0 ||
+			strExt.CompareNoCase(L".PNG") == 0 ||
+			strExt.CompareNoCase(L".BMP") == 0;
 	}
 }

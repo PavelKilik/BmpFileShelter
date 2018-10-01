@@ -47,13 +47,13 @@ CString CMyLCG::ToString(bool hexFormat)
 	if (hexFormat)
 	{
 		CString paramString("");
-		paramString.Format((LPCTSTR)L"M = 0x%x\r\nA = 0x%x\r\nC = 0x%x", aParamM, aParamA, aParamC);
+		paramString.Format(L"M = 0x%x\r\nA = 0x%x\r\nC = 0x%x", aParamM, aParamA, aParamC);
 		return paramString;
 	}
 	else
 	{
 		CString paramString("");
-		paramString.Format((LPCTSTR)L"M = %li\r\nA = %li\r\nC = %li", aParamM, aParamA, aParamC);
+		paramString.Format(L"M = %li\r\nA = %li\r\nC = %li", aParamM, aParamA, aParamC);
 		return paramString;
 	}
 }
