@@ -63,3 +63,25 @@ void CBmpFileShelterHelper::ULONG32ToByteArray(byte * pB, int startPos, ULONG32 
 	pB[startPos + 2] = ul >> 16;
 	pB[startPos + 3] = ul >> 24;
 }
+
+bool CBmpFileShelterHelper::CheckImageExtension(LPCTSTR filePath, bool onlyBmp)
+{
+	TCHAR ext[MAX_PATH];
+	TCHAR drive[_MAX_DRIVE];
+	TCHAR dir[MAX_PATH];
+	TCHAR filename[MAX_PATH];
+
+	_tsplitpath_s(filePath, drive, dir, filename, ext);
+
+	CString strExt(ext);
+	if (onlyBmp)
+	{
+		return strExt.CompareNoCase((LPCTSTR)L"BMP") == 0;
+	}
+	else
+	{
+		return strExt.CompareNoCase((LPCTSTR)L"JPG") == 0 ||
+			strExt.CompareNoCase((LPCTSTR)L"PNG") == 0 ||
+			strExt.CompareNoCase((LPCTSTR)L"BMP") == 0;
+	}
+}
