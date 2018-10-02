@@ -81,6 +81,7 @@ bool CBmpFileShelterHelper::CheckImageExtension(LPCTSTR filePath, bool onlyBmp)
 	else
 	{
 		return strExt.CompareNoCase(L".JPG") == 0 ||
+			strExt.CompareNoCase(L".JPEG") == 0 ||
 			strExt.CompareNoCase(L".PNG") == 0 ||
 			strExt.CompareNoCase(L".BMP") == 0;
 	}

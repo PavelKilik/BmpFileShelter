@@ -82,7 +82,7 @@ byte * CMyFileEncryptor::Encrypt(LPCTSTR filePath, LPCTSTR key, int maxLength, i
 		return nullptr;
 	}
 
-	if (fil.GetLength() > maxLength - 2 * sizeof(ULONG32))
+	if (fil.GetLength() > maxLength)
 	{
 		errorString.Format(IDS_STRING_ERR_HIDDEN_FILE_TOO_LONG, maxLength, fil.GetLength());
 		fil.Close();
@@ -120,18 +120,24 @@ bool CMyFileEncryptor::Decrypt(LPCTSTR filePath, LPCTSTR key, byte * pB, int arr
 		{
 			CFile fil;
 			CFileException ex;
-			if (!fil.Open(filePath, CFile::modeWrite | CFile::modeCreate, &ex))
+			if (fil.Open(filePath, CFile::modeWrite | CFile::modeCreate, &ex))
+			{
+				fil.Write(pbDecrypted, realCount);
+				fil.Close();
+				retValue = true;
+			}
+			else
 			{
 				TCHAR errorMesage[2048];
 				ex.GetErrorMessage(errorMesage, 2048);
 				errorString.Format(IDS_STRING_ERR_CREATE_RESULT_FILE, errorMesage);
-				delete pbDecrypted;
 			}
-			fil.Write(pbDecrypted, realCount);
-			fil.Close();
-			retValue = true;
 		}
 		delete pbDecrypted;
+	}
+	else
+	{
+		errorString.LoadString(IDS_STRING_ERR_DATA_OR_KEY);
 	}
 
 	return retValue;
@@ -235,7 +241,7 @@ byte * CMyFileEncryptor::Decrypt(byte * pB, int nMaxCount, int & realCount)
 	realCount = -1;
 	int realCount1 = CBmpFileShelterHelper::GetULONG32FromByteArray(pbDecrypted, 0);
 	int realCount2 = -1;
-	if (realCount1 > 0 && realCount1 + 2 * ulSize < nMaxCount)
+	if (realCount1 > 0 && realCount1 + 2 * ulSize <= nMaxCount)
 	{
 		realCount2 = CBmpFileShelterHelper::GetULONG32FromByteArray(pbDecrypted, realCount1 + ulSize);
 	}
