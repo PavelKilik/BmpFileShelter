@@ -47,19 +47,28 @@ bool CMyImage::HideByteArrayIntoBitmap(const byte * pB, int arrSize)
 			switch (rgbRotation % 3)
 			{
 			case 0:
-				rNew = (rOrig & 0xF8) | (byteAdd & 0x7);
-				gNew = (gOrig & 0xF8) | ((byteAdd >> 3) & 0x7);
-				bNew = (bOrig & 0xFC) | ((byteAdd >> 6) & 0x3);
+				rNew = (rOrig & 0xF8) | (byteAdd & 0x07);
+				Bit4Correction(rOrig, rNew);
+				gNew = (gOrig & 0xF8) | ((byteAdd >> 3) & 0x07);
+				Bit4Correction(gOrig, gNew);
+				bNew = (bOrig & 0xFC) | ((byteAdd >> 6) & 0x03);
+				Bit3Correction(bOrig, bNew);
 				break;
 			case 1:
-				rNew = (rOrig & 0xF8) | ((byteAdd >> 3) & 0x7);
-				gNew = (gOrig & 0xFC) | ((byteAdd >> 6) & 0x3);
-				bNew = (bOrig & 0xF8) | (byteAdd & 0x7);
+				rNew = (rOrig & 0xF8) | ((byteAdd >> 3) & 0x07);
+				Bit4Correction(rOrig, rNew);
+				gNew = (gOrig & 0xFC) | ((byteAdd >> 6) & 0x03);
+				Bit3Correction(gOrig, gNew);
+				bNew = (bOrig & 0xF8) | (byteAdd & 0x07);
+				Bit4Correction(bOrig, bNew);
 				break;
 			case 2:
-				rNew = (rOrig & 0xFC) | ((byteAdd >> 6) & 0x3);
-				gNew = (gOrig & 0xF8) | (byteAdd & 0x7);
-				bNew = (bOrig & 0xF8) | ((byteAdd >> 3) & 0x7);
+				rNew = (rOrig & 0xFC) | ((byteAdd >> 6) & 0x03);
+				Bit3Correction(rOrig, rNew);
+				gNew = (gOrig & 0xF8) | (byteAdd & 0x07);
+				Bit4Correction(gOrig, gNew);
+				bNew = (bOrig & 0xF8) | ((byteAdd >> 3) & 0x07);
+				Bit4Correction(bOrig, bNew);
 				break;
 			}
 			this->SetRGB(i, j, rNew, gNew, bNew);
@@ -132,4 +141,30 @@ void CMyImage::SetRGB(int x, int y, byte R, byte G, byte B)
 {
 	COLORREF clr = (B << 16) + (G << 8) + R;
 	this->SetPixel(x, y, clr);
+}
+
+inline void CMyImage::Bit4Correction(byte bOrig, byte & bNew)
+{
+	int byteDiff = bNew - bOrig;
+	if (byteDiff > 4 && (bNew & 0x08) > 1)
+	{
+		bNew &= 0xF7;
+	}
+	else if (byteDiff < -4 && (bNew & 0x08) == 0)
+	{
+		bNew |= 0x08;
+	}
+}
+
+inline void CMyImage::Bit3Correction(byte bOrig, byte & bNew)
+{
+	int byteDiff = bNew - bOrig;
+	if (byteDiff > 2 && (bNew & 0x04) > 1)
+	{
+		bNew &= 0xFB;
+	}
+	else if (byteDiff < -2 && (bNew & 0x04) == 0)
+	{
+		bNew |= 0x04;
+	}
 }

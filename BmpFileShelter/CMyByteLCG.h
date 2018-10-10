@@ -17,7 +17,3 @@ public:
 	byte Next();
 	CString ToString(bool hexFormat = false);
 };
-
-
-
-
