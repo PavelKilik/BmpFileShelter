@@ -1,0 +1,1 @@
+<Playlist Version="1.0"><Add Test="BmpFileShelterUnitTest::UnitTest1::EncryptAndHideFile" /><Add Test="BmpFileShelterUnitTest::UnitTest1::ExtractAndDecryptSecretFile" /></Playlist>
